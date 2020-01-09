@@ -19,14 +19,13 @@ public class CodeGenerator {
         // 表前缀，生成的实体类，不含前缀
         String [] tablePrefixes = {""};
         // 表名，为空，生成所有的表
-        String [] tableNames = {"user_login"};
+        String [] tableNames = {"user_login","user_info"};
         // 字段前缀
         String [] fieldPrefixes = {""};
 
         String packageName = "com.mstains.team";
 
         CommonUtils.execute(dbType,dbUrl,userName,passWord,driver,tablePrefixes,tableNames,packageName,fieldPrefixes);
-
     }
 
 

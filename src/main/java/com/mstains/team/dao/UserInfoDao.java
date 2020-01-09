@@ -1,6 +1,6 @@
 package com.mstains.team.dao;
 
-import com.mstains.team.model.UserLoginModel;
+import com.mstains.team.model.UserInfoModel;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**
@@ -11,6 +11,6 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * @author mstains
  * @since 2020-01-09
  */
-public interface UserLoginDao extends BaseMapper<UserLoginModel> {
+public interface UserInfoDao extends BaseMapper<UserInfoModel> {
 
 }

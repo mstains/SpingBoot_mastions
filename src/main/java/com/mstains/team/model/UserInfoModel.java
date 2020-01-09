@@ -20,24 +20,34 @@ import lombok.experimental.Accessors;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@TableName("user_login")
-public class UserLoginModel extends Model<UserLoginModel> {
+@TableName("user_info")
+public class UserInfoModel extends Model<UserInfoModel> {
 
     private static final long serialVersionUID = 1L;
 
-    @TableId(value = "login_id", type = IdType.AUTO)
-    private Integer loginId;
+    @TableId(value = "uuid", type = IdType.AUTO)
+    private Integer uuid;
 
     private String userId;
 
-    private String loginName;
+    private String userName;
 
-    private String passWord;
+    private String picUrl;
+
+    private String age;
+
+    private String sex;
+
+    private String phone;
+
+    private String idCard;
+
+    private String address;
 
 
     @Override
     protected Serializable pkVal() {
-        return this.loginId;
+        return this.uuid;
     }
 
 }

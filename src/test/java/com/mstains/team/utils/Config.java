@@ -40,7 +40,7 @@ public class Config {
 
 
     /** 作者 */
-    public static final String AUTHOR = "Erwin Feng";
+    public static final String AUTHOR = "mstains";
 
     // 生成文件的输出目录
     public static String projectPath = System.getProperty("user.dir");

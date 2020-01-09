@@ -6,12 +6,19 @@ import com.google.gson.Gson;
 import com.mstains.team.config.RequestCodeConfig;
 import com.mstains.team.entity.LoginEntity;
 import com.mstains.team.entity.RegisterEntity;
+import com.mstains.team.model.UserInfoModel;
 import com.mstains.team.model.UserLoginModel;
+import com.mstains.team.service.MPUserInfoService;
 import com.mstains.team.service.MPUserLoginService;
+import com.mstains.team.token.TokenManager;
+import com.mstains.team.utils.MD5Utils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.UUID;
 
 /**
  * <p>
@@ -22,58 +29,71 @@ import org.springframework.web.bind.annotation.RestController;
  * @since 2020-01-07
  */
 @RestController
+@RequestMapping("app/api/v1/")
 public class LoginController {
 
     @Autowired
     private MPUserLoginService userLoginService;
 
+    @Autowired
+    private MPUserInfoService userInfoService;
 
-    @RequestMapping("app/api/v1/login")
+
+    @PostMapping("login")
     public String onUserLogin(@RequestParam("userName") String loginName,
                               @RequestParam("passWord") String passWord) {
         QueryWrapper<UserLoginModel> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().eq(UserLoginModel::getLoginName, loginName);
         queryWrapper.lambda().eq(UserLoginModel::getPassWord, passWord);
         UserLoginModel userLoginModel = userLoginService.getOne(queryWrapper);
-
         LoginEntity loginEntity = new LoginEntity();
-
         if (userLoginModel == null) {
             loginEntity.setReturnCode(RequestCodeConfig.USER_ERROR_EXIST_C0DE);
-            loginEntity.setReturnMsg("用户不存在");
+            loginEntity.setReturnMsg("用户名或密码错误，请重试");
         } else if (userLoginModel.getLoginName().equals(loginName) && userLoginModel.getPassWord().equals(passWord)) {
             loginEntity.setReturnCode(RequestCodeConfig.NORMAL_CODE);
             loginEntity.setReturnMsg("登录成功");
-        } else {
-            loginEntity.setReturnCode(RequestCodeConfig.USER_PASSWORD_ERROR_CODE);
-            loginEntity.setReturnMsg("密码错误，请输入正确密码！");
-
+            String token = TokenManager.getToken(loginName, passWord,userLoginModel.getUserId());
+            loginEntity.setToken(token);
         }
         Gson gson = new Gson();
-
         return gson.toJson(loginEntity);
-
     }
 
-
-    @RequestMapping("app/api/v1/register")
+    @PostMapping("register")
     public String onUserRegister(@RequestParam("userName") String userName,
-                               @RequestParam("passWord") String passWord) {
-        UserLoginModel userLoginModel = new UserLoginModel();
-        userLoginModel.setLoginName(userName);
-        userLoginModel.setPassWord(passWord);
-       boolean success = userLoginService.save(userLoginModel);
+                                 @RequestParam("passWord") String passWord) {
+
+        QueryWrapper<UserLoginModel> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(UserLoginModel::getLoginName, userName);
+        UserLoginModel loginModel = userLoginService.getOne(queryWrapper);
         RegisterEntity registerEntity = new RegisterEntity();
-        registerEntity.setReturnCode(RequestCodeConfig.SERVICE_ERROR_CODE);
-        registerEntity.setReturnMsg("注册失败，服务器异常");
-       if (success){
-           registerEntity.setReturnCode(RequestCodeConfig.NORMAL_CODE);
-           registerEntity.setReturnMsg("注册成功");
-           registerEntity.setData("请开始你的表演");
-       }
+        if (loginModel != null) {
+            registerEntity.setReturnCode(RequestCodeConfig.SERVICE_ERROR_CODE);
+            registerEntity.setReturnMsg("该账号已被注册");
+        }
+        else {
+            UserLoginModel userLoginModel = new UserLoginModel();
+            userLoginModel.setLoginName(userName);
+            userLoginModel.setPassWord(MD5Utils.encode(passWord));
+            userLoginModel.setUserId(UUID.randomUUID().toString().replaceAll("-", "").trim());
 
+            boolean success = userLoginService.save(userLoginModel);
+            registerEntity.setReturnCode(RequestCodeConfig.SERVICE_ERROR_CODE);
+            registerEntity.setReturnMsg("注册失败，服务器异常");
+            if (success) {
+                UserInfoModel userInfoModel = new UserInfoModel();
+                userInfoModel.setUserId(userLoginModel.getUserId());
+                userInfoModel.setUserName(userLoginModel.getLoginName());
+
+                userInfoService.save(userInfoModel);
+
+                registerEntity.setReturnCode(RequestCodeConfig.NORMAL_CODE);
+                registerEntity.setReturnMsg("注册成功");
+                registerEntity.setData("请开始你的表演");
+            }
+        }
         Gson gson = new Gson();
-       return gson.toJson(registerEntity);
-
+        return gson.toJson(registerEntity);
     }
 }

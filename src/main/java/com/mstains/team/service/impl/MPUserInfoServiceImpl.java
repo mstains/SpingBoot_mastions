@@ -1,8 +1,8 @@
 package com.mstains.team.service.impl;
 
-import com.mstains.team.model.UserLoginModel;
-import com.mstains.team.dao.UserLoginDao;
-import com.mstains.team.service.MPUserLoginService;
+import com.mstains.team.model.UserInfoModel;
+import com.mstains.team.dao.UserInfoDao;
+import com.mstains.team.service.MPUserInfoService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +15,6 @@ import org.springframework.stereotype.Service;
  * @since 2020-01-09
  */
 @Service
-public class MPUserLoginServiceImpl extends ServiceImpl<UserLoginDao, UserLoginModel> implements MPUserLoginService {
+public class MPUserInfoServiceImpl extends ServiceImpl<UserInfoDao, UserInfoModel> implements MPUserInfoService {
 
 }

@@ -150,6 +150,7 @@ public class CommonUtils {
         InjectionConfig injectionConfig = injectionConfig(packageConfig);
         TemplateConfig templateConfig = new TemplateConfig();
         templateConfig.setXml(null);
+        templateConfig.setController(null);
         new AutoGenerator()
                 .setTemplateEngine(new FreemarkerTemplateEngine())
                 .setGlobalConfig(globalConfig)
