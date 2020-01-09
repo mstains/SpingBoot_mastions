@@ -1,6 +1,7 @@
 package com.mstains.team.controller;
 
 
+import com.auth0.jwt.JWT;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.gson.Gson;
 import com.mstains.team.config.RequestCodeConfig;
@@ -15,7 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * <p>
@@ -25,7 +26,7 @@ import org.springframework.stereotype.Controller;
  * @author Erwin Feng
  * @since 2020-01-09
  */
-@Controller
+@RestController
 @Slf4j
 @RequestMapping("/app/api/v1/")
 public class UserInfoController {
@@ -40,6 +41,7 @@ public class UserInfoController {
     public String onUserInfo(@RequestHeader("token") String token) {
 
         String userId = TokenManager.queryUserId(token);
+
         log.info(userId);
         Gson gson = new Gson();
 
