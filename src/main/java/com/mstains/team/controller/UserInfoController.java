@@ -1,7 +1,9 @@
 package com.mstains.team.controller;
 
 
-import com.auth0.jwt.JWT;
+import com.auth0.jwt.exceptions.SignatureVerificationException;
+import com.auth0.jwt.exceptions.TokenExpiredException;
+import com.auth0.jwt.interfaces.Claim;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.gson.Gson;
 import com.mstains.team.config.RequestCodeConfig;
@@ -15,8 +17,9 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
-
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Map;
 
 /**
  * <p>
@@ -40,39 +43,63 @@ public class UserInfoController {
     @PostMapping("userInfo")
     public String onUserInfo(@RequestHeader("token") String token) {
 
-        String userId = TokenManager.queryUserId(token);
-
-        log.info(userId);
         Gson gson = new Gson();
-
-        String userJson = (String) template.opsForValue().get(userId);
-        UserInfoModel userInfoModel = null;
-        if (userJson == null) {
-            log.info("查询数据库");
-            QueryWrapper<UserInfoModel> queryWrapper = new QueryWrapper<>();
-            queryWrapper.lambda().eq(UserInfoModel::getUserId, userId);
-
-            userInfoModel = userInfoService.getOne(queryWrapper);
-            template.opsForValue().set(userId, gson.toJson(userInfoModel));
-        } else {
-            log.info("获取缓存");
-            userInfoModel = gson.fromJson(userJson, UserInfoModel.class);
-        }
 
         UserInfoEntity userInfoEntity = new UserInfoEntity();
 
-        userInfoEntity.setReturnCode(RequestCodeConfig.SERVICE_ERROR_CODE);
+        try {
+            Map<String, Claim>  claimMap =  TokenManager.verifyToken(token);
 
-        userInfoEntity.setReturnMsg("服务异常，请稍后再试。");
+            String userId = claimMap.get(TokenManager.USER_ID).asString();
 
-        if (userInfoModel != null) {
+            log.info(userId);
+            String userJson = (String) template.opsForValue().get(userId);
+            UserInfoModel userInfoModel = null;
+            if (userJson == null) {
+                log.info("查询数据库");
+                QueryWrapper<UserInfoModel> queryWrapper = new QueryWrapper<>();
+                queryWrapper.lambda().eq(UserInfoModel::getUserId, userId);
 
-            userInfoEntity.setReturnCode(RequestCodeConfig.NORMAL_CODE);
+                userInfoModel = userInfoService.getOne(queryWrapper);
+                template.opsForValue().set(userId, gson.toJson(userInfoModel));
+            } else {
+                log.info("获取缓存");
+                userInfoModel = gson.fromJson(userJson, UserInfoModel.class);
 
-            userInfoEntity.setReturnMsg("获取成功。");
+                if (userInfoModel != null) {
 
-            userInfoEntity.setData(gson.toJson(userInfoModel));
+                    userInfoEntity.setReturnCode(RequestCodeConfig.NORMAL_CODE);
+
+                    userInfoEntity.setReturnMsg("获取成功。");
+
+                    userInfoEntity.setData(gson.toJson(userInfoModel));
+                }
+            }
+
+        }catch (TokenExpiredException exception){
+
+            userInfoEntity.setReturnCode(RequestCodeConfig.TOKEN_ERROR_CODE);
+
+            userInfoEntity.setReturnMsg("登录超时");
+
         }
+        catch (SignatureVerificationException exception){
+
+            userInfoEntity.setReturnCode(RequestCodeConfig.TOKEN_ERROR_CODE);
+
+            userInfoEntity.setReturnMsg("登录超时");
+        }
+
+
+
+
+
+
+
+
+
+
+
         return gson.toJson(userInfoEntity);
     }
 

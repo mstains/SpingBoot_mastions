@@ -10,6 +10,8 @@ public class RequestCodeConfig {
     public static String USER_ERROR_EXIST_C0DE = "i9001";
     //用户密码错误
     public static String USER_PASSWORD_ERROR_CODE = "i9002";
+    //token过期
+    public static String TOKEN_ERROR_CODE = "I99999";
 
 
 

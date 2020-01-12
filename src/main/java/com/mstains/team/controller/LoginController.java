@@ -6,6 +6,7 @@ import com.google.gson.Gson;
 import com.mstains.team.config.RequestCodeConfig;
 import com.mstains.team.entity.LoginEntity;
 import com.mstains.team.entity.RegisterEntity;
+import com.mstains.team.entity.TokenEntity;
 import com.mstains.team.model.UserInfoModel;
 import com.mstains.team.model.UserLoginModel;
 import com.mstains.team.service.MPUserInfoService;
@@ -53,8 +54,11 @@ public class LoginController {
         } else if (userLoginModel.getLoginName().equals(loginName) && userLoginModel.getPassWord().equals(passWord)) {
             loginEntity.setReturnCode(RequestCodeConfig.NORMAL_CODE);
             loginEntity.setReturnMsg("登录成功");
-            String token = TokenManager.getToken(loginName, passWord,userLoginModel.getUserId());
-            loginEntity.setToken(token);
+            String token = TokenManager.getToken(loginName,userLoginModel.getUserId());
+
+            TokenEntity tokenEntity = new TokenEntity();
+            tokenEntity.setToken(token);
+            loginEntity.setData(new Gson().toJson(tokenEntity));
         }
         Gson gson = new Gson();
         return gson.toJson(loginEntity);
@@ -90,7 +94,6 @@ public class LoginController {
 
                 registerEntity.setReturnCode(RequestCodeConfig.NORMAL_CODE);
                 registerEntity.setReturnMsg("注册成功");
-                registerEntity.setData("请开始你的表演");
             }
         }
         Gson gson = new Gson();

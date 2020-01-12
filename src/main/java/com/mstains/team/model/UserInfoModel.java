@@ -15,7 +15,7 @@ import lombok.experimental.Accessors;
  * </p>
  *
  * @author mstains
- * @since 2020-01-09
+ * @since 2020-01-10
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -43,6 +43,8 @@ public class UserInfoModel extends Model<UserInfoModel> {
     private String idCard;
 
     private String address;
+
+    private String userType;
 
 
     @Override

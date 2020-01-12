@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
  * </p>
  *
  * @author mstains
- * @since 2020-01-09
+ * @since 2020-01-10
  */
 @Service
 public class MPUserInfoServiceImpl extends ServiceImpl<UserInfoDao, UserInfoModel> implements MPUserInfoService {

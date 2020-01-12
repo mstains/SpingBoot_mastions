@@ -6,7 +6,8 @@ import lombok.Data;
 @Data
 public class LoginEntity extends BaseEntity {
 
-    public String token = "";
+
+    private TokenEntity token;
 
 
 
