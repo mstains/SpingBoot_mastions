@@ -62,6 +62,7 @@ public class UserInfoController {
 
                 userInfoModel = userInfoService.getOne(queryWrapper);
                 template.opsForValue().set(userId, gson.toJson(userInfoModel));
+
             } else {
                 log.info("获取缓存");
                 userInfoModel = gson.fromJson(userJson, UserInfoModel.class);
@@ -89,16 +90,6 @@ public class UserInfoController {
 
             userInfoEntity.setReturnMsg("登录超时");
         }
-
-
-
-
-
-
-
-
-
-
 
         return gson.toJson(userInfoEntity);
     }
